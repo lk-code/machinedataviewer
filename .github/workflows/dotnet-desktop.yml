@@ -86,7 +86,7 @@ jobs:
         Appx_Package_Build_Mode: Sideload
 
     - name: Create Release ZIP
-      run: zip -r $env:VERSION.zip $env:Wap_Project_Directory\bin\x86\Release\DataViewer\
+      run: Compress-Archive -Path $env:Wap_Project_Directory\bin\x86\Release\DataViewer\ -DestinationPath $env:VERSION.zip 
         
     - name: Set Version Git Tag
       run: |
