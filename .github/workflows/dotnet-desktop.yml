@@ -114,6 +114,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.Wap_Project_Directory }}/AppPackages/*.msix
+        asset_path: ${{ env.Wap_Project_Directory }}\AppPackages\DataViewer.Setup_1.0.0.0_Test\DataViewer.Setup_1.0.0.0_x86.msixbundle
         asset_name: ${{ env.VERSION }}_x86.msix
         asset_content_type: application/octet-stream
