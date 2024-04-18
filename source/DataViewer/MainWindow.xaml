@@ -12,25 +12,25 @@
 
         <ribbon:Ribbon x:Name="Ribbon"
                        Title="Ribbon Title">
-            
+
             <ribbon:Ribbon.HelpPaneContent>
                 <ribbon:RibbonButton />
             </ribbon:Ribbon.HelpPaneContent>
-            
+
             <ribbon:Ribbon.QuickAccessToolBar>
                 <ribbon:RibbonQuickAccessToolBar >
                     <ribbon:RibbonButton x:Name="QATButton1" />
                     <ribbon:RibbonButton x:Name="QATButton2" />
                 </ribbon:RibbonQuickAccessToolBar>
             </ribbon:Ribbon.QuickAccessToolBar>
-            
+
             <ribbon:Ribbon.ApplicationMenu>
                 <ribbon:RibbonApplicationMenu>
                     <ribbon:RibbonApplicationMenuItem Header="Hello _Ribbon"
                                                       x:Name="MenuItem1"/>
                 </ribbon:RibbonApplicationMenu>
             </ribbon:Ribbon.ApplicationMenu>
-            
+
             <ribbon:RibbonTab x:Name="HomeTab" 
                               Header="Home">
                 <ribbon:RibbonGroup x:Name="Group1" 
@@ -44,9 +44,9 @@
                     <ribbon:RibbonButton x:Name="Button4"
                                          Label="Button4" />
                 </ribbon:RibbonGroup>
-                
+
             </ribbon:RibbonTab>
-            
+
         </ribbon:Ribbon>
 
     </Grid>
