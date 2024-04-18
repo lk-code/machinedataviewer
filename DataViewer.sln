@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataViewer", "source\DataViewer\DataViewer.csproj", "{66F89232-E0B3-46A1-BA78-F93CF0B04584}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{4EF4FD98-A02C-4713-9F5B-CACEDF02C8DE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{9D4BDD7B-61EF-452C-9CAB-D56D5DED2E7E}"
+	ProjectSection(SolutionItems) = preProject
+		assets\100050027_Versuch 8Sb-Sp.0,05_0,068.txt = assets\100050027_Versuch 8Sb-Sp.0,05_0,068.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Core", "source\DataViewer.Core\DataViewer.Core.csproj", "{B5E9DAD7-4731-4D70-BC45-DD19C9D36A3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Tests", "source\DataViewer.Tests\DataViewer.Tests.csproj", "{DBDD573E-C934-49C4-AB00-6F26C8B00D37}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66F89232-E0B3-46A1-BA78-F93CF0B04584}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66F89232-E0B3-46A1-BA78-F93CF0B04584}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66F89232-E0B3-46A1-BA78-F93CF0B04584}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66F89232-E0B3-46A1-BA78-F93CF0B04584}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E9DAD7-4731-4D70-BC45-DD19C9D36A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E9DAD7-4731-4D70-BC45-DD19C9D36A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E9DAD7-4731-4D70-BC45-DD19C9D36A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E9DAD7-4731-4D70-BC45-DD19C9D36A3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBDD573E-C934-49C4-AB00-6F26C8B00D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBDD573E-C934-49C4-AB00-6F26C8B00D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBDD573E-C934-49C4-AB00-6F26C8B00D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBDD573E-C934-49C4-AB00-6F26C8B00D37}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9D4BDD7B-61EF-452C-9CAB-D56D5DED2E7E} = {4EF4FD98-A02C-4713-9F5B-CACEDF02C8DE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {48AF9360-0257-4216-A9FB-B0FAEAEF5D13}
+	EndGlobalSection
+EndGlobal
