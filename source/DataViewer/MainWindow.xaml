@@ -14,22 +14,13 @@
                              mc:Ignorable="d"
                              Title="{Binding Title, Mode=OneWay}"
                              Height="450" Width="800"
-                             Background="#fff1f8fb"
-                             TitleBarForeground="#ff000000"
+                             Background="{StaticResource BackgroundColorBrush}"
+                             TitleBarBackground="{StaticResource TitleBarBackgroundBrush}"
+                             TitleBarForeground="{StaticResource ForegroundColorBrush}"
                              AllowDrop="True"
                              DragEnter="MainWindow_DragEnter"
                              DragLeave="MainWindow_DragLeave"
                              Drop="MainWindow_Drop">
-
-    <adonisControls:AdonisWindow.TitleBarBackground>
-        <LinearGradientBrush StartPoint="0,0"
-                             EndPoint="1,0">
-            <GradientStop Color="#ffe0ebf1"
-                          Offset="0"/>
-            <GradientStop Color="#ffe0ebf1"
-                          Offset="1"/>
-        </LinearGradientBrush>
-    </adonisControls:AdonisWindow.TitleBarBackground>
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -46,10 +37,10 @@
               Panel.ZIndex="999"
               Grid.Row="0"
               Grid.RowSpan="2">
-            <Border Background="#fff1f8fb"
+            <Border Background="{StaticResource BackgroundColorBrush}"
                     Padding="40">
                 <fa5:SvgAwesome Icon="Solid_ArrowAltCircleDown"
-                                Foreground="#ffe0ebf1"
+                                Foreground="{StaticResource BackgroundContrastColorBrush}"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center" />
             </Border>
