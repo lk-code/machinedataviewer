@@ -15,7 +15,7 @@
                              Title="{Binding Title, Mode=OneWay}"
                              Height="450" Width="800"
                              Background="#fff1f8fb"
-                             TitleBarForeground="#ffffffff"
+                             TitleBarForeground="#ff000000"
                              AllowDrop="True"
                              DragEnter="MainWindow_DragEnter"
                              DragLeave="MainWindow_DragLeave"
@@ -24,9 +24,9 @@
     <adonisControls:AdonisWindow.TitleBarBackground>
         <LinearGradientBrush StartPoint="0,0"
                              EndPoint="1,0">
-            <GradientStop Color="#ff0000aa"
+            <GradientStop Color="#ffe0ebf1"
                           Offset="0"/>
-            <GradientStop Color="#ff0000cc"
+            <GradientStop Color="#ffe0ebf1"
                           Offset="1"/>
         </LinearGradientBrush>
     </adonisControls:AdonisWindow.TitleBarBackground>
@@ -48,9 +48,10 @@
               Grid.RowSpan="2">
             <Border Background="#fff1f8fb"
                     Padding="40">
-                <fa5:SvgAwesome Icon="Solid_ArrowAltCircleDown" Foreground="#ffe0ebf1"
-                                 VerticalAlignment="Center"
-                                 HorizontalAlignment="Center" />
+                <fa5:SvgAwesome Icon="Solid_ArrowAltCircleDown"
+                                Foreground="#ffe0ebf1"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center" />
             </Border>
         </Grid>
 
