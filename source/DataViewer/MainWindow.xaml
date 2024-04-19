@@ -7,12 +7,19 @@
                              xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
                              xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                              xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+                             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                             xmlns:fa5="http://schemas.fontawesome.com/icons/"
                              xmlns:local="clr-namespace:DataViewer"
                              d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
                              mc:Ignorable="d"
                              Title="{Binding Title, Mode=OneWay}"
                              Height="450" Width="800"
-                             TitleBarForeground="#ffffffff">
+                             Background="#fff1f8fb"
+                             TitleBarForeground="#ffffffff"
+                             AllowDrop="True"
+                             DragEnter="MainWindow_DragEnter"
+                             DragLeave="MainWindow_DragLeave"
+                             Drop="MainWindow_Drop">
 
     <adonisControls:AdonisWindow.TitleBarBackground>
         <LinearGradientBrush StartPoint="0,0"
@@ -24,12 +31,39 @@
         </LinearGradientBrush>
     </adonisControls:AdonisWindow.TitleBarBackground>
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
     <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="24" />
+        </Grid.RowDefinitions>
+
+        <Grid Visibility="{Binding IsDragDropUIVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Panel.ZIndex="999"
+              Grid.Row="0"
+              Grid.RowSpan="2">
+            <Border Background="#fff1f8fb"
+                    Padding="40">
+                <fa5:SvgAwesome Icon="Solid_ArrowAltCircleDown" Foreground="#ffe0ebf1"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center" />
+            </Border>
+        </Grid>
+
         <StackPanel Orientation="Vertical"
                     Margin="20">
 
             <Button Content="Click Me!" />
         </StackPanel>
+
+        <StatusBar Grid.Row="1">
+            <StatusBarItem Content="{Binding LoadedFilePath, Mode=OneWay}" />
+        </StatusBar>
+
     </Grid>
 
 </adonisControls:AdonisWindow>
