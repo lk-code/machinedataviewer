@@ -1,10 +1,13 @@
-﻿using System.Windows;
+﻿using System.Text;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DataViewer.Core.Contracts;
 
 namespace DataViewer.ViewModels;
 
-public partial class MainViewModel() : ObservableObject
+public partial class MainViewModel(IIOProvider iOProvider,
+    IDataExtractor dataExtractor) : ObservableObject
 {
     [ObservableProperty]
     private string _title = "DataViewer by lk-code";
@@ -16,19 +19,23 @@ public partial class MainViewModel() : ObservableObject
     private string _loadedFilePath = "";
 
     [RelayCommand]
-    private void DragEnter(System.Windows.DragEventArgs e)
+    private async Task DragEnter(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
     {
         this.IsDragDropUIVisible = true;
+
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
-    private void DragLeave(System.Windows.DragEventArgs e)
+    private async Task DragLeave(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
     {
         this.IsDragDropUIVisible = false;
+
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
-    private void Drop(System.Windows.DragEventArgs e)
+    private async Task Drop(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
     {
         this.IsDragDropUIVisible = false;
 
@@ -36,5 +43,19 @@ public partial class MainViewModel() : ObservableObject
         string targetFile = files[0];
 
         this.LoadedFilePath = targetFile;
+
+        await this.LoadDataAsync(this.LoadedFilePath, cancellationToken);
+    }
+
+    private async Task LoadDataAsync(string loadedFilePath, CancellationToken cancellationToken)
+    {
+        string data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
+
+        if(string.IsNullOrEmpty(data))
+        {
+            return;
+        }
+
+        IEnumerable<string> analytics = await dataExtractor.GetAnalyticsFromData(data, cancellationToken);
     }
 }

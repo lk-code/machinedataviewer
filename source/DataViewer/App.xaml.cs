@@ -1,6 +1,5 @@
 ﻿using System.Windows;
-using DataViewer.Core;
-using DataViewer.Core.Contracts;
+using DataViewer.Core.Extensions;
 using DataViewer.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,7 +23,7 @@ public partial class App : Application
                 services.AddSingleton<MainViewModel>();
 
                 // register services
-                services.AddSingleton<IDataExtractor, MachineDataExtractor>();
+                services.AddCore();
             })
             .Build();
     }
