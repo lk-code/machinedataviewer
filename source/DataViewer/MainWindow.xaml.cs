@@ -48,6 +48,11 @@ public partial class MainWindow : AdonisWindow
 
     private void MainWindow_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
+        if(e.AddedItems.Count == 0)
+        {
+            return;
+        }
+
         string filePath = (string)e.AddedItems[0]!;
         ((MainViewModel)this.DataContext).LoadFileCommand.Execute(filePath);
     }

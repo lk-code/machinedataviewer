@@ -4,10 +4,12 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataViewer.Core.Contracts;
+using static AdonisUI.Helpers.HwndInterop;
 
 namespace DataViewer.ViewModels;
 
-public partial class MainViewModel(IIOProvider iOProvider,
+public partial class MainViewModel(ISettingsStorage settingsStorage,
+    IIOProvider iOProvider,
     IDataExtractor dataExtractor) : ObservableObject
 {
     [ObservableProperty]
@@ -33,10 +35,14 @@ public partial class MainViewModel(IIOProvider iOProvider,
     [RelayCommand]
     private async Task Loaded(CancellationToken cancellationToken)
     {
+        string[]? fileHistory = await settingsStorage.Read<string[]>("FileHistory", cancellationToken);
+
         this.FileHistory.Clear();
-        this.FileHistory.Add("C:\\Users\\lk-code\\Desktop\\data.txt");
-        this.FileHistory.Add("C:\\Users\\lk-code\\Desktop\\data2.txt");
-        await Task.CompletedTask;
+        if (fileHistory is not null)
+        {
+            fileHistory.ToList()
+                .ForEach(x => this.FileHistory.Add(x));
+        }
     }
 
     [RelayCommand]
@@ -62,6 +68,14 @@ public partial class MainViewModel(IIOProvider iOProvider,
     private async Task LoadFile(string filePath, CancellationToken cancellationToken)
     {
         this.LoadedFilePath = filePath;
+
+        if (this.FileHistory.Contains(filePath))
+        {
+            this.FileHistory.Remove(filePath);
+        }
+        this.FileHistory.Insert(0, filePath);
+
+        await settingsStorage.Write("FileHistory", this.FileHistory.ToArray(), cancellationToken);
 
         await this.LoadDataAsync(this.LoadedFilePath, cancellationToken);
     }

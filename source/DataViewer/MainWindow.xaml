@@ -62,11 +62,12 @@
 
             <Border CornerRadius="8"
                     Background="{StaticResource BackgroundContrastColorBrush}"
-                    Grid.Row="1" Grid.Column="1">
+                    Grid.Row="1" Grid.Column="1"
+                    Padding="4">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="Hi :D" Grid.Column="0" />

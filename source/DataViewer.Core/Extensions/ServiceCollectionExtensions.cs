@@ -9,6 +9,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IIOProvider, IOProvider>();
         services.AddSingleton<IDataExtractor, MachineDataExtractor>();
+        services.AddSingleton<ISettingsStorage, SettingsStorage>();
 
         return services;
     }
