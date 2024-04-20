@@ -13,11 +13,13 @@
                              d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
                              mc:Ignorable="d"
                              Title="{Binding Title, Mode=OneWay}"
-                             Height="450" Width="800"
+                             MinHeight="600" MinWidth="1000"
+                             Height="800" Width="1400"
                              Background="{StaticResource BackgroundColorBrush}"
                              TitleBarBackground="{StaticResource TitleBarBackgroundBrush}"
                              TitleBarForeground="{StaticResource ForegroundColorBrush}"
                              AllowDrop="True"
+                             Loaded="MainWindow_Loaded"
                              DragEnter="MainWindow_DragEnter"
                              DragLeave="MainWindow_DragLeave"
                              Drop="MainWindow_Drop">
@@ -46,11 +48,38 @@
             </Border>
         </Grid>
 
-        <StackPanel Orientation="Vertical"
-                    Margin="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="400" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="800" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-            <Button Content="Click Me!" />
-        </StackPanel>
+            <Border CornerRadius="8"
+                    Background="{StaticResource BackgroundContrastColorBrush}"
+                    Grid.Row="1" Grid.Column="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Hi :D" Grid.Column="0" />
+
+                    <ListBox Grid.Column="1"
+                             SelectionChanged="MainWindow_SelectionChanged"
+                             ItemsSource="{Binding FileHistory, Mode=OneWay}"
+                             SelectionMode="Single"/>
+
+                </Grid>
+            </Border>
+
+        </Grid>
 
         <StatusBar Grid.Row="1">
             <StatusBarItem Content="{Binding LoadedFilePath, Mode=OneWay}" />

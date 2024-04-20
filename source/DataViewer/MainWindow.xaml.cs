@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using AdonisUI.Controls;
 using DataViewer.ViewModels;
+using System.Linq;
 
 namespace DataViewer;
 
@@ -14,6 +15,11 @@ public partial class MainWindow : AdonisWindow
         InitializeComponent();
 
         this.DataContext = viewModel;
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        ((MainViewModel)this.DataContext).LoadedCommand.Execute(e);
     }
 
     private void MainWindow_DragEnter(object sender, System.Windows.DragEventArgs e)
@@ -38,5 +44,11 @@ public partial class MainWindow : AdonisWindow
     private void MainWindow_Drop(object sender, System.Windows.DragEventArgs e)
     {
         ((MainViewModel)this.DataContext).DropCommand.Execute(e);
+    }
+
+    private void MainWindow_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        string filePath = (string)e.AddedItems[0]!;
+        ((MainViewModel)this.DataContext).LoadFileCommand.Execute(filePath);
     }
 }
