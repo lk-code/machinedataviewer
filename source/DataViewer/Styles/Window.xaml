@@ -1,0 +1,23 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Window TitleBarBackground Brush -->
+    <LinearGradientBrush x:Key="LightTitleBarBackgroundBrush"
+                         StartPoint="0,0"
+                         EndPoint="1,0">
+        <GradientStop Color="{StaticResource BackgroundContrastColor}"
+                          Offset="0"/>
+        <GradientStop Color="{StaticResource BackgroundContrastColor}"
+                          Offset="1"/>
+    </LinearGradientBrush>
+
+
+    <LinearGradientBrush x:Key="AccentTitleBarBackgroundBrush"
+                         StartPoint="0,0"
+                         EndPoint="1,0">
+        <GradientStop Color="{StaticResource AccentColor}"
+                          Offset="0"/>
+        <GradientStop Color="{StaticResource AccentColor}"
+                          Offset="1"/>
+    </LinearGradientBrush>
+</ResourceDictionary>

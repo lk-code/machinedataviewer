@@ -7,6 +7,35 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<ApplicationIcon>icons8-web-analytics-256.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Images\icons8-close-32.png" />
+	  <None Remove="Images\icons8-info-32.png" />
+	  <None Remove="Images\icons8-menu-16.png" />
+	  <None Remove="Images\icons8-show-sidepanel-16.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="icons8-web-analytics-256.ico" />
+	  <Resource Include="Images\icons8-close-32.png" />
+	  <Resource Include="Images\icons8-info-32.png" />
+	  <Resource Include="Images\icons8-menu-16.png" />
+	  <Resource Include="Images\icons8-show-sidepanel-16.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="AdonisUI" Version="1.17.1" />
+	  <PackageReference Include="AdonisUI.ClassicTheme" Version="1.17.1" />
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+	  <PackageReference Include="FontAwesome5" Version="2.1.11" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DataViewer.Core\DataViewer.Core.csproj" />
+	</ItemGroup>
 
 </Project>
