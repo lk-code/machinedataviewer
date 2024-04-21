@@ -23,6 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataViewer.Tests", "source\
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "DataViewer.Setup", "source\DataViewer.Setup\DataViewer.Setup.wapproj", "{CEFDD8E3-E57E-4859-9DF5-A30C0E8AB759}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{49B9C86A-C3FD-4ED9-B693-8D91C12F4823}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet-desktop.yml = .github\workflows\dotnet-desktop.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +138,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9D4BDD7B-61EF-452C-9CAB-D56D5DED2E7E} = {4EF4FD98-A02C-4713-9F5B-CACEDF02C8DE}
+		{49B9C86A-C3FD-4ED9-B693-8D91C12F4823} = {4EF4FD98-A02C-4713-9F5B-CACEDF02C8DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {48AF9360-0257-4216-A9FB-B0FAEAEF5D13}
