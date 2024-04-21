@@ -171,7 +171,13 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     [RelayCommand]
     private async Task AppInfo(CancellationToken cancellationToken)
     {
-        AdonisUI.Controls.MessageBox.Show("DataViewer by lk-code\nVersion 1.0", "Info", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Information);
+        string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+
+        StringBuilder appInfoStringBuilder = new StringBuilder();
+        appInfoStringBuilder.AppendLine("DataViewer by lk-code");
+        appInfoStringBuilder.AppendLine($"Version: {version}");
+
+        AdonisUI.Controls.MessageBox.Show(appInfoStringBuilder.ToString(), "Info", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Information);
 
         await Task.CompletedTask;
     }

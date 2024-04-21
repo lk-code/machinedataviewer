@@ -78,6 +78,15 @@ jobs:
     - name: Restore the application
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
 
+    - name: Version Visual Studio SDK projects
+      uses: roryprimrose/set-vs-sdk-project-version@v1.0.3
+      with:
+        projectFilter: ${{ env.PROJECT_FILE }}
+        version: ${{ env.VERSION }}
+        assemblyVersion: ${{ env.VERSION }}
+        fileVersion: ${{ env.VERSION }}
+        informationalVersion: ${{ env.VERSION }}
+
     - name: Create the app package
       run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:Version=$env:VERSION
       env:
