@@ -53,17 +53,81 @@
         </Grid>
 
         <Ribbon Grid.Row="0"
-                SelectedIndex="{Binding SelectedRibbonTabIndex, Mode=OneWay}">
+                SelectedIndex="{Binding SelectedRibbonTabIndex, Mode=TwoWay}">
+
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu SmallImageSource="/Images/icons8-show-sidepanel-16.png" 
+                                  KeyTip="F">
+                    <RibbonApplicationMenuItem Header="Open"
+                                          Command="Open"
+                                          KeyTip="O" />
+                    <RibbonApplicationMenuItem Header="Save"
+                                          Command="Save"
+                                          KeyTip="S" />
+                    <RibbonApplicationSplitMenuItem Header="Save As"
+                                               Command="SaveAs"
+                                               KeyTip="V" >
+                        <RibbonApplicationMenuItem Header="Rich Text document"
+                                              Command="SaveAs" CommandParameter="rtf"
+                                              KeyTip="R" />
+                        <RibbonApplicationMenuItem Header="Plain Text document"
+                                              Command="SaveAs" CommandParameter="txt"
+                                              KeyTip="P" />
+                        <RibbonApplicationMenuItem Header="Other format"
+                                              Command="SaveAs"
+                                              KeyTip="O" />
+                    </RibbonApplicationSplitMenuItem>
+                    <RibbonSeparator />
+                    <RibbonApplicationSplitMenuItem Header="Print" 
+                                               KeyTip="R">
+                        <RibbonApplicationMenuItem Header="Print"
+                                              KeyTip="P" />
+                        <RibbonApplicationMenuItem Header="Quick Print"
+                                              KeyTip="Q" />
+                        <RibbonApplicationMenuItem Header="Print Preview"
+                                              KeyTip="V" />
+                    </RibbonApplicationSplitMenuItem>
+                    <RibbonApplicationMenuItem Header="Page Setup"
+                                          KeyTip="G" />
+                    <RibbonApplicationMenu.FooterPaneContent>
+                        <DockPanel LastChildFill="False">
+                            <RibbonButton Command="ApplicationCommands.Close"
+                                     Label="Exit"
+                                     ToolTipTitle="Exit" 
+                                     KeyTip="X"
+                                     DockPanel.Dock="Right"
+                                     Margin="2"
+                                     BorderBrush="#B8114EAF" />
+                        </DockPanel>
+                    </RibbonApplicationMenu.FooterPaneContent>
+                    <RibbonApplicationMenu.AuxiliaryPaneContent>
+                        <RibbonGallery CanUserFilter="False"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <RibbonGalleryCategory Header="Recent Documents" 
+                                              Background="Transparent" 
+                                              ItemsSource="{DynamicResource MostRecentFiles}">
+                                <RibbonGalleryCategory.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical" IsItemsHost="True"/>
+                                    </ItemsPanelTemplate>
+                                </RibbonGalleryCategory.ItemsPanel>
+                            </RibbonGalleryCategory>
+                        </RibbonGallery>
+                    </RibbonApplicationMenu.AuxiliaryPaneContent>
+                </RibbonApplicationMenu>
+            </Ribbon.ApplicationMenu>
 
             <RibbonTab Header="Info">
                 <RibbonGroup Header="Über">
-                    <RibbonButton LargeImageSource="/Images/icons8-info-32.png" Label="Info" />
+                    <RibbonButton LargeImageSource="/Images/icons8-info-32.png"
+                                  Label="Info"
+                                  Command="{Binding AppInfoCommand, Mode=OneWay}"/>
                 </RibbonGroup>
             </RibbonTab>
 
             <RibbonTab Header="Analyse"
                        IsEnabled="{Binding IsRibbonTabAnalyticsEnabled, Mode=OneWay}"
-                       HeaderStyle="{StaticResource FocusedRibbonTabHeaderPurpleStyle}">
+                       HeaderStyle="{StaticResource FocusedRibbonTabHeaderBlueStyle}">
                 <RibbonGroup Header="Datei">
                     <RibbonButton LargeImageSource="/Images/icons8-close-32.png"
                                   Label="Schließen"

@@ -157,6 +157,14 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         await this.CloseFileAndClearDisplay(cancellationToken);
     }
 
+    [RelayCommand]
+    private async Task AppInfo(CancellationToken cancellationToken)
+    {
+        AdonisUI.Controls.MessageBox.Show("DataViewer by lk-code\nVersion 1.0", "Info", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Information);
+
+        await Task.CompletedTask;
+    }
+
     private async Task CloseFileAndClearDisplay(CancellationToken cancellationToken)
     {
         this.IsFileLoaded = false;
