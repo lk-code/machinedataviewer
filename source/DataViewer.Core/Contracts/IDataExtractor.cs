@@ -1,5 +1,21 @@
-﻿namespace DataViewer.Core.Contracts;
+﻿using DataViewer.Core.Models;
+
+namespace DataViewer.Core.Contracts;
 public interface IDataExtractor
 {
-    Task<IEnumerable<string>> GetAnalyticsFromData(string data, CancellationToken cancellationToken);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IEnumerable<string>> GetPortsFromDataAsync(string data, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<IEnumerable<AnalyticsRow>> GetAnalyticsFromDataAsync(string data, CancellationToken cancellationToken);
 }

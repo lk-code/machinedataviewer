@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataViewer.Core.Contracts;
+using DataViewer.Core.Models;
 using Microsoft.Win32;
 
 namespace DataViewer.ViewModels;
@@ -38,6 +40,48 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     [ObservableProperty]
     private string _selectedFileHistoryEntry = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _ports = new();
+
+    /// <summary>
+    /// Mittelwert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthAverage = 0;
+
+    /// <summary>
+    /// Spannweite
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthSpan = 0;
+
+    /// <summary>
+    /// Standard-Abweichung
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthVariance = 0;
+
+    /// <summary>
+    /// Mittelwert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceAverage = 0;
+
+    /// <summary>
+    /// Spannweite
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceSpan = 0;
+
+    /// <summary>
+    /// Standard-Abweichung
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceVariance = 0;
+
+    [ObservableProperty]
+    private long _numberOfAnalyticsRows = 0;
 
     [RelayCommand]
     private async Task DragEnter(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
@@ -100,7 +144,7 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     [RelayCommand]
     private async Task LoadFile(string filePath, CancellationToken cancellationToken)
     {
-        if(string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrEmpty(filePath))
         {
             return;
         }
@@ -156,7 +200,42 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         this.IsRibbonTabAnalyticsEnabled = true;
         this.SelectedRibbonTabIndex = 1;
 
-        IEnumerable<string> analytics = await dataExtractor.GetAnalyticsFromData(data, cancellationToken);
+        _ = Task.WhenAll(
+            this.LoadPortsFromData(data, cancellationToken),
+            this.LoadAnalyticsFromData(data, cancellationToken)
+        );
+    }
+
+    private async Task LoadPortsFromData(string data, CancellationToken cancellationToken)
+    {
+        IEnumerable<string> ports = await dataExtractor.GetPortsFromDataAsync(data, cancellationToken);
+
+        this.Ports.Clear();
+        ports.ToList()
+            .ForEach(x => this.Ports.Add(x));
+    }
+
+    private async Task LoadAnalyticsFromData(string data, CancellationToken cancellationToken)
+    {
+        IEnumerable<AnalyticsRow> analytics = (await dataExtractor.GetAnalyticsFromDataAsync(data, cancellationToken)).ToList();
+
+        this.NumberOfAnalyticsRows = analytics.Count();
+
+        // calculate head width
+        double headWidthAverage = analytics.Average(x => x.HeadWidth);
+        this.CalculatedHeadWidthAverage = headWidthAverage;
+        double headWidthSpan = analytics.Max(x => x.HeadWidth) - analytics.Min(x => x.HeadWidth);
+        this.CalculatedHeadWidthSpan = headWidthSpan;
+        double headWidthVariance = analytics.Select(x => Math.Pow(x.HeadWidth - headWidthAverage, 2)).Sum() / analytics.Count();
+        this.CalculatedHeadWidthVariance = headWidthVariance;
+
+        // calculate distance
+        double distanceAverage = analytics.Average(x => x.Distance);
+        this.CalculatedDistanceAverage = distanceAverage;
+        double distanceSpan = analytics.Max(x => x.Distance) - analytics.Min(x => x.Distance);
+        this.CalculatedDistanceSpan = distanceSpan;
+        double distanceVariance = analytics.Select(x => Math.Pow(x.Distance - distanceAverage, 2)).Sum() / analytics.Count();
+        this.CalculatedDistanceVariance = distanceVariance;
     }
 
     [RelayCommand]

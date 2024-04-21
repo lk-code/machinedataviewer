@@ -200,6 +200,128 @@
 
         <Grid Grid.Row="1" Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
 
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="400" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Margin="8"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    CornerRadius="4"
+                    Background="{StaticResource BackgroundContrastColorBrush}">
+
+                <Grid Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Kopfbreite [mm]"
+                               Margin="0, 0, 0, 4"
+                               Grid.Row="0"
+                               Grid.Column="0" Grid.ColumnSpan="3"
+                               FontSize="16"/>
+
+                    <StackPanel Orientation="Vertical"
+                                Grid.Row="1"
+                                Grid.Column="0">
+                        <TextBlock Text="Mittelwert"
+                                   FontStyle="Italic" />
+                        <TextBlock Text="{Binding CalculatedHeadWidthAverage, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical"
+                                Grid.Row="1"
+                                Grid.Column="1">
+                        <TextBlock Text="Spannweite"
+                                   FontStyle="Italic" />
+                        <TextBlock Text="{Binding CalculatedHeadWidthSpan, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical"
+                                Grid.Row="1"
+                                Grid.Column="2">
+                        <TextBlock Text="Std.-Abweichung"
+                                   FontStyle="Italic" />
+                        <TextBlock Text="{Binding CalculatedHeadWidthVariance, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <TextBlock Text="Abstand [mm]"
+                               Margin="0, 16, 0, 4"
+                               Grid.Row="2"
+                               Grid.Column="0" Grid.ColumnSpan="3"
+                               FontSize="16"/>
+
+                    <StackPanel Orientation="Vertical"
+                                Grid.Row="3"
+                                Grid.Column="0">
+                        <TextBlock Text="Mittelwert"
+                                   FontStyle="Italic" />
+                        <TextBlock Text="{Binding CalculatedDistanceAverage, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical"
+                                Grid.Row="3"
+                                Grid.Column="1">
+                        <TextBlock Text="Spannweite"
+                                   FontStyle="Italic" />
+                        <TextBlock Text="{Binding CalculatedDistanceSpan, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical"
+                                Grid.Row="3"
+                                Grid.Column="2">
+                        <TextBlock Text="Std.-Abweichung"
+                                   FontStyle="Italic" />
+                        <TextBlock Text="{Binding CalculatedDistanceVariance, Mode=OneWay}" />
+                    </StackPanel>
+
+                </Grid>
+
+            </Border>
+
+            <StackPanel Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Grid.Column="1"
+                        Orientation="Vertical">
+
+                <Border Margin="8"
+                        CornerRadius="4"
+                        Background="{StaticResource BackgroundContrastColorBrush}">
+                    <ListBox ItemsSource="{Binding Ports, Mode=OneWay}"
+                             IsEnabled="False"/>
+                </Border>
+
+                <Border Margin="8"
+                        CornerRadius="4"
+                        Background="{StaticResource BackgroundContrastColorBrush}">
+                    <StackPanel Orientation="Vertical"
+                                Margin="4">
+                        <TextBlock Text="Anzahl geladene Einträge"
+                               Margin="0, 0, 0, 4"
+                               FontSize="16"/>
+                        <TextBlock Text="{Binding NumberOfAnalyticsRows, Mode=OneWay, StringFormat={}{0:#,0}}" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+
         </Grid>
 
         <StatusBar Grid.Row="2">
