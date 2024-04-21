@@ -36,6 +36,9 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     [ObservableProperty]
     private bool _isRibbonTabAnalyticsEnabled = false;
 
+    [ObservableProperty]
+    private string _selectedFileHistoryEntry = string.Empty;
+
     [RelayCommand]
     private async Task DragEnter(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
     {
@@ -149,6 +152,14 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         this.SelectedRibbonTabIndex = 1;
 
         IEnumerable<string> analytics = await dataExtractor.GetAnalyticsFromData(data, cancellationToken);
+    }
+
+    [RelayCommand]
+    private async Task DeleteFromHistory(string filePath, CancellationToken cancellationToken)
+    {
+        this.FileHistory.Remove(filePath);
+
+        await settingsStorage.Write("FileHistory", this.FileHistory.ToArray(), cancellationToken);
     }
 
     [RelayCommand]

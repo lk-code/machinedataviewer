@@ -58,6 +58,22 @@ public partial class MainWindow : AdonisWindow
 
     private void MainWindow_OpenFileButton_Click(object sender, RoutedEventArgs e)
     {
-        ((MainViewModel)this.DataContext).LoadFileFromDialogCommand.Execute(e);
+        string filePath = ((MainViewModel)this.DataContext).SelectedFileHistoryEntry;
+
+        ((MainViewModel)this.DataContext).LoadFileCommand.Execute(filePath);
+    }
+
+    private void MainWindow_DeleteFromFileHistoryButton_Click(object sender, RoutedEventArgs e)
+    {
+        string filePath = ((MainViewModel)this.DataContext).SelectedFileHistoryEntry;
+
+        ((MainViewModel)this.DataContext).DeleteFromHistoryCommand.Execute(filePath);
+    }
+
+    private void MainWindow_FileHistoryListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        string filePath = ((MainViewModel)this.DataContext).SelectedFileHistoryEntry;
+
+        ((MainViewModel)this.DataContext).LoadFileCommand.Execute(filePath);
     }
 }

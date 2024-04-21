@@ -30,6 +30,10 @@
         <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" True="Collapsed" False="Visible" />
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
     </Window.Resources>
+    
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding LoadFileFromDialogCommand}" />
+    </Window.InputBindings>
 
     <Grid>
 
@@ -161,6 +165,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="0"
+                            Command="{Binding LoadFileCommand}"
                             Click="MainWindow_OpenFileButton_Click"
                             Height="100" Width="100"
                             Padding="12"
@@ -180,10 +185,23 @@
                                     Focusable="False"/>
 
                     <ListBox Grid.Column="1"
-                             SelectionChanged="MainWindow_SelectionChanged"
+                             x:Name="MainWindow_FileHistoryListBox"
+                             MouseDoubleClick="MainWindow_FileHistoryListBox_MouseDoubleClick"
                              ItemsSource="{Binding FileHistory, Mode=OneWay}"
                              IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
-                             SelectionMode="Single"/>
+                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                             SelectedItem="{Binding SelectedFileHistoryEntry, Mode=TwoWay}"
+                             SelectionMode="Single">
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Öffnen"
+                                          Click="MainWindow_OpenFileButton_Click"/>
+                                <MenuItem Header="Löschen"
+                                          Click="MainWindow_DeleteFromFileHistoryButton_Click"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+
 
                 </Grid>
             </Border>
@@ -195,6 +213,7 @@
         </Grid>
 
         <StatusBar Grid.Row="2">
+            <StatusBarItem Content="Lade Datei..." Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
             <StatusBarItem Content="{Binding LoadedFilePath, Mode=OneWay}" />
         </StatusBar>
 
