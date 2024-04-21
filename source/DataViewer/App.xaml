@@ -13,6 +13,7 @@
 
                 <ResourceDictionary Source="Styles/Variables.xaml" />
                 <ResourceDictionary Source="Styles/Window.xaml" />
+                <ResourceDictionary Source="Styles/Ribbon.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 

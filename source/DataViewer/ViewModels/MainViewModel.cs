@@ -4,7 +4,7 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataViewer.Core.Contracts;
-using static AdonisUI.Helpers.HwndInterop;
+using Microsoft.Win32;
 
 namespace DataViewer.ViewModels;
 
@@ -23,6 +23,18 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     [ObservableProperty]
     private ObservableCollection<string> _fileHistory = new();
+
+    [ObservableProperty]
+    private bool _isBusy = false;
+
+    [ObservableProperty]
+    private bool _isFileLoaded = false;
+
+    [ObservableProperty]
+    private int _selectedRibbonTabIndex = 0;
+
+    [ObservableProperty]
+    private bool _isRibbonTabAnalyticsEnabled = false;
 
     [RelayCommand]
     private async Task DragEnter(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
@@ -65,6 +77,24 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     }
 
     [RelayCommand]
+    private async Task LoadFileFromDialog(CancellationToken cancellationToken)
+    {
+        OpenFileDialog fileDialog = new OpenFileDialog
+        {
+            Title = "Datei auswählen",
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            RestoreDirectory = true,
+            Filter = "Alle Dateien (*.*)|*.*|Text-Dateien (*.txt)|*.txt"
+        };
+
+        if (fileDialog.ShowDialog() == true)
+        {
+            string fileName = fileDialog.FileName;
+            await this.LoadFile(fileName, cancellationToken);
+        }
+    }
+
+    [RelayCommand]
     private async Task LoadFile(string filePath, CancellationToken cancellationToken)
     {
         this.LoadedFilePath = filePath;
@@ -82,10 +112,12 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     private async Task LoadDataAsync(string loadedFilePath, CancellationToken cancellationToken)
     {
-        string? data = null;
         try
         {
-            data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
+            this.IsBusy = true;
+
+            string? data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
+            await this.DisplayAnalyticsFromDataAsync(data, cancellationToken);
         }
         catch (System.IO.FileNotFoundException)
         {
@@ -99,12 +131,39 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         {
             AdonisUI.Controls.MessageBox.Show(ex.Message, "Fehler", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Error);
         }
+        finally
+        {
+            this.IsBusy = false;
+        }
+    }
 
+    private async Task DisplayAnalyticsFromDataAsync(string data, CancellationToken cancellationToken)
+    {
         if (string.IsNullOrEmpty(data))
         {
             return;
         }
 
+        this.IsFileLoaded = true;
+        this.IsRibbonTabAnalyticsEnabled = true;
+        this.SelectedRibbonTabIndex = 1;
+
         IEnumerable<string> analytics = await dataExtractor.GetAnalyticsFromData(data, cancellationToken);
+    }
+
+    [RelayCommand]
+    private async Task CloseFile(CancellationToken cancellationToken)
+    {
+        await this.CloseFileAndClearDisplay(cancellationToken);
+    }
+
+    private async Task CloseFileAndClearDisplay(CancellationToken cancellationToken)
+    {
+        this.IsFileLoaded = false;
+        this.IsRibbonTabAnalyticsEnabled = false;
+        this.SelectedRibbonTabIndex = 0;
+        this.LoadedFilePath = "";
+
+        await Task.CompletedTask;
     }
 }

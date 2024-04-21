@@ -9,6 +9,7 @@
                              xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
                              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                              xmlns:fa5="http://schemas.fontawesome.com/icons/"
+                             xmlns:converters="clr-namespace:DataViewer.Converter"
                              xmlns:local="clr-namespace:DataViewer"
                              d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
                              mc:Ignorable="d"
@@ -16,8 +17,8 @@
                              MinHeight="600" MinWidth="1000"
                              Height="800" Width="1400"
                              Background="{StaticResource BackgroundColorBrush}"
-                             TitleBarBackground="{StaticResource TitleBarBackgroundBrush}"
-                             TitleBarForeground="{StaticResource ForegroundColorBrush}"
+                             TitleBarBackground="{StaticResource AccentTitleBarBackgroundBrush}"
+                             TitleBarForeground="{StaticResource AccentContrastColorBrush}"
                              AllowDrop="True"
                              Loaded="MainWindow_Loaded"
                              DragEnter="MainWindow_DragEnter"
@@ -25,20 +26,23 @@
                              Drop="MainWindow_Drop">
 
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Visible" False="Collapsed" />
+        <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" True="Collapsed" False="Visible" />
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
     </Window.Resources>
 
     <Grid>
 
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="24" />
         </Grid.RowDefinitions>
 
-        <Grid Visibility="{Binding IsDragDropUIVisible, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+        <Grid Visibility="{Binding IsDragDropUIVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
               Panel.ZIndex="999"
               Grid.Row="0"
-              Grid.RowSpan="2">
+              Grid.RowSpan="3">
             <Border Background="{StaticResource BackgroundColorBrush}"
                     Padding="40">
                 <fa5:SvgAwesome Icon="Solid_ArrowAltCircleDown"
@@ -48,7 +52,29 @@
             </Border>
         </Grid>
 
-        <Grid>
+        <Ribbon Grid.Row="0"
+                SelectedIndex="{Binding SelectedRibbonTabIndex, Mode=OneWay}">
+
+            <RibbonTab Header="Info">
+                <RibbonGroup Header="Über">
+                    <RibbonButton LargeImageSource="/Images/icons8-info-32.png" Label="Info" />
+                </RibbonGroup>
+            </RibbonTab>
+
+            <RibbonTab Header="Analyse"
+                       IsEnabled="{Binding IsRibbonTabAnalyticsEnabled, Mode=OneWay}"
+                       HeaderStyle="{StaticResource FocusedRibbonTabHeaderPurpleStyle}">
+                <RibbonGroup Header="Datei">
+                    <RibbonButton LargeImageSource="/Images/icons8-close-32.png"
+                                  Label="Schließen"
+                                  Command="{Binding CloseFileCommand, Mode=OneWay}"/>
+                </RibbonGroup>
+            </RibbonTab>
+
+        </Ribbon>
+
+        <Grid Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+              Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="400" />
@@ -70,11 +96,29 @@
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Hi :D" Grid.Column="0" />
+                    <Button Grid.Column="0"
+                            Click="MainWindow_OpenFileButton_Click"
+                            Height="100" Width="100"
+                            Padding="12"
+                            Background="{StaticResource BackgroundColorBrush}"
+                            BorderThickness="1"
+                            Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <fa5:SvgAwesome Icon="Solid_FolderPlus"
+                                    Foreground="{StaticResource BackgroundContrastColorBrush}"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center" />
+                    </Button>
+
+                    <ContentControl ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingCircle}}"
+                                    Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Foreground="{StaticResource AccentColorBrush}"
+                                    Height="100" Width="100"
+                                    Focusable="False"/>
 
                     <ListBox Grid.Column="1"
                              SelectionChanged="MainWindow_SelectionChanged"
                              ItemsSource="{Binding FileHistory, Mode=OneWay}"
+                             IsEnabled="{Binding IsBusy, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                              SelectionMode="Single"/>
 
                 </Grid>
@@ -82,7 +126,11 @@
 
         </Grid>
 
-        <StatusBar Grid.Row="1">
+        <Grid Grid.Row="1" Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+
+        </Grid>
+
+        <StatusBar Grid.Row="2">
             <StatusBarItem Content="{Binding LoadedFilePath, Mode=OneWay}" />
         </StatusBar>
 

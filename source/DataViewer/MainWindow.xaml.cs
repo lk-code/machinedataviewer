@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using AdonisUI.Controls;
 using DataViewer.ViewModels;
-using System.Linq;
 
 namespace DataViewer;
 
@@ -48,12 +47,17 @@ public partial class MainWindow : AdonisWindow
 
     private void MainWindow_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-        if(e.AddedItems.Count == 0)
+        if (e.AddedItems.Count == 0)
         {
             return;
         }
 
         string filePath = (string)e.AddedItems[0]!;
         ((MainViewModel)this.DataContext).LoadFileCommand.Execute(filePath);
+    }
+
+    private void MainWindow_OpenFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        ((MainViewModel)this.DataContext).LoadFileFromDialogCommand.Execute(e);
     }
 }
