@@ -100,6 +100,11 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     [RelayCommand]
     private async Task LoadFile(string filePath, CancellationToken cancellationToken)
     {
+        if(string.IsNullOrEmpty(filePath))
+        {
+            return;
+        }
+
         this.LoadedFilePath = filePath;
 
         if (this.FileHistory.Contains(filePath))
@@ -190,5 +195,11 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         this.LoadedFilePath = "";
 
         await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private void ExitApplication()
+    {
+        Application.Current.Shutdown();
     }
 }
