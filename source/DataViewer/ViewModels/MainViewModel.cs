@@ -170,6 +170,9 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
             string? data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
             await this.DisplayAnalyticsFromDataAsync(data, cancellationToken);
+
+            // clean up
+            data = null;
         }
         catch (System.IO.FileNotFoundException)
         {
@@ -208,16 +211,18 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     private async Task LoadPortsFromData(string data, CancellationToken cancellationToken)
     {
-        IEnumerable<string> ports = await dataExtractor.GetPortsFromDataAsync(data, cancellationToken);
+        List<string> ports = (await dataExtractor.GetPortsFromDataAsync(data, cancellationToken)).ToList();
 
         this.Ports.Clear();
         ports.ToList()
             .ForEach(x => this.Ports.Add(x));
+
+        ports.Clear();
     }
 
     private async Task LoadAnalyticsFromData(string data, CancellationToken cancellationToken)
     {
-        IEnumerable<AnalyticsRow> analytics = (await dataExtractor.GetAnalyticsFromDataAsync(data, cancellationToken)).ToList();
+        List<AnalyticsRow> analytics = (await dataExtractor.GetAnalyticsFromDataAsync(data, cancellationToken)).ToList();
 
         this.NumberOfAnalyticsRows = analytics.Count();
 
@@ -236,6 +241,8 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         this.CalculatedDistanceSpan = distanceSpan;
         double distanceVariance = analytics.Select(x => Math.Pow(x.Distance - distanceAverage, 2)).Sum() / analytics.Count();
         this.CalculatedDistanceVariance = distanceVariance;
+
+        analytics.Clear();
     }
 
     [RelayCommand]
@@ -268,10 +275,18 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     private async Task CloseFileAndClearDisplay(CancellationToken cancellationToken)
     {
-        this.IsFileLoaded = false;
-        this.IsRibbonTabAnalyticsEnabled = false;
-        this.SelectedRibbonTabIndex = 0;
         this.LoadedFilePath = "";
+        this.IsFileLoaded = false;
+        this.SelectedRibbonTabIndex = 0;
+        this.IsRibbonTabAnalyticsEnabled = false;
+        this.Ports.Clear();
+        this.CalculatedHeadWidthAverage = 0;
+        this.CalculatedHeadWidthSpan = 0;
+        this.CalculatedHeadWidthVariance = 0;
+        this.CalculatedDistanceAverage = 0;
+        this.CalculatedDistanceSpan = 0;
+        this.CalculatedDistanceVariance = 0;
+        this.NumberOfAnalyticsRows = 0;
 
         await Task.CompletedTask;
     }

@@ -120,6 +120,12 @@
                                   Label="Schließen"
                                   Command="{Binding CloseFileCommand, Mode=OneWay}"/>
                 </RibbonGroup>
+                <RibbonGroup Header="Berechnung">
+                    <RibbonButton SmallImageSource="/Images/icons8-reset-16.png"
+                                  Label="Neu Berechnen"
+                                  Command="{Binding LoadFileCommand, Mode=OneWay}"
+                                  CommandParameter="{Binding LoadedFilePath, Mode=OneWay}"/>
+                </RibbonGroup>
             </RibbonTab>
 
         </Ribbon>
