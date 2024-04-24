@@ -113,8 +113,7 @@
             </RibbonTab>
 
             <RibbonTab Header="Analyse"
-                       IsEnabled="{Binding IsRibbonTabAnalyticsEnabled, Mode=OneWay}"
-                       HeaderStyle="{StaticResource FocusedRibbonTabHeaderBlueStyle}">
+                       IsEnabled="{Binding IsRibbonTabAnalyticsEnabled, Mode=OneWay}">
                 <RibbonGroup Header="Datei">
                     <RibbonButton LargeImageSource="/Images/icons8-close-32.png"
                                   Label="Schließen"
@@ -198,7 +197,6 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-
                 </Grid>
             </Border>
 
@@ -249,7 +247,7 @@
                                 Grid.Column="0">
                         <TextBlock Text="Mittelwert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthAverage, Mode=OneWay}" />
+                        <TextBlock Text="{Binding CalculatedHeadWidthAverage, Mode=OneWay, StringFormat=N3}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical"
@@ -257,7 +255,7 @@
                                 Grid.Column="1">
                         <TextBlock Text="Spannweite"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthSpan, Mode=OneWay}" />
+                        <TextBlock Text="{Binding CalculatedHeadWidthSpan, Mode=OneWay, StringFormat=N3}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical"
@@ -265,7 +263,7 @@
                                 Grid.Column="2">
                         <TextBlock Text="Std.-Abweichung"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthVariance, Mode=OneWay}" />
+                        <TextBlock Text="{Binding CalculatedHeadWidthVariance, Mode=OneWay, StringFormat=N3}" />
                     </StackPanel>
 
                     <TextBlock Text="Abstand [mm]"
@@ -279,7 +277,7 @@
                                 Grid.Column="0">
                         <TextBlock Text="Mittelwert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceAverage, Mode=OneWay}" />
+                        <TextBlock Text="{Binding CalculatedDistanceAverage, Mode=OneWay, StringFormat=N3}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical"
@@ -287,7 +285,7 @@
                                 Grid.Column="1">
                         <TextBlock Text="Spannweite"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceSpan, Mode=OneWay}" />
+                        <TextBlock Text="{Binding CalculatedDistanceSpan, Mode=OneWay, StringFormat=N3}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical"
@@ -295,7 +293,7 @@
                                 Grid.Column="2">
                         <TextBlock Text="Std.-Abweichung"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceVariance, Mode=OneWay}" />
+                        <TextBlock Text="{Binding CalculatedDistanceVariance, Mode=OneWay, StringFormat=N3}" />
                     </StackPanel>
 
                 </Grid>
