@@ -2,10 +2,13 @@
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataViewer.Core.Contracts;
 using DataViewer.Core.Models;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
 using Microsoft.Win32;
 
 namespace DataViewer.ViewModels;
@@ -104,6 +107,12 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     [ObservableProperty]
     private double _calculatedDistanceMaxValue = 0;
 
+    /// <summary>
+    /// Werte für Diagramm
+    /// </summary>
+    [ObservableProperty]
+    private ObservableCollection<ISeries> _calculatedSeries = new();
+
     [ObservableProperty]
     private long _numberOfAnalyticsRows = 0;
 
@@ -193,7 +202,8 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
             this.IsBusy = true;
 
             string? data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
-            await this.DisplayAnalyticsFromDataAsync(data, cancellationToken);
+            // run DisplayAnalyticsFromDataAsync in non ui thread
+            await Task.Run(() => this.DisplayAnalyticsFromDataAsync(data, cancellationToken), cancellationToken);
 
             // clean up
             data = null;
@@ -210,10 +220,6 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         {
             AdonisUI.Controls.MessageBox.Show(ex.Message, "Fehler", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Error);
         }
-        finally
-        {
-            this.IsBusy = false;
-        }
     }
 
     private async Task DisplayAnalyticsFromDataAsync(string data, CancellationToken cancellationToken)
@@ -223,23 +229,37 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
             return;
         }
 
-        this.IsFileLoaded = true;
-        this.IsRibbonTabAnalyticsEnabled = true;
-        this.SelectedRibbonTabIndex = 1;
+        try
+        {
+            await Task.WhenAll(
+                this.LoadPortsFromData(data, cancellationToken),
+                this.LoadAnalyticsFromData(data, cancellationToken)
+            );
 
-        _ = Task.WhenAll(
-            this.LoadPortsFromData(data, cancellationToken),
-            this.LoadAnalyticsFromData(data, cancellationToken)
-        );
+            this.IsFileLoaded = true;
+            this.IsRibbonTabAnalyticsEnabled = true;
+            this.SelectedRibbonTabIndex = 1;
+        }
+        catch (Exception ex)
+        {
+            AdonisUI.Controls.MessageBox.Show(ex.Message, "Fehler", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Error);
+        }
+        finally
+        {
+            this.IsBusy = false;
+        }
     }
 
     private async Task LoadPortsFromData(string data, CancellationToken cancellationToken)
     {
         List<string> ports = (await dataExtractor.GetPortsFromDataAsync(data, cancellationToken)).ToList();
 
-        this.Ports.Clear();
-        ports.ToList()
-            .ForEach(x => this.Ports.Add(x));
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+            this.Ports.Clear();
+            ports.ToList()
+                .ForEach(x => this.Ports.Add(x));
+        });
 
         ports.Clear();
     }
@@ -248,31 +268,54 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     {
         List<AnalyticsRow> analytics = (await dataExtractor.GetAnalyticsFromDataAsync(data, cancellationToken)).ToList();
 
-        this.NumberOfAnalyticsRows = analytics.Count();
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+            this.NumberOfAnalyticsRows = analytics.Count();
 
-        // calculate head width
-        double headWidthAverage = analytics.Average(x => x.HeadWidth);
-        this.CalculatedHeadWidthAverage = headWidthAverage;
-        double headWidthSpan = analytics.Max(x => x.HeadWidth) - analytics.Min(x => x.HeadWidth);
-        this.CalculatedHeadWidthSpan = headWidthSpan;
-        double headWidthVariance = analytics.Select(x => Math.Pow(x.HeadWidth - headWidthAverage, 2)).Sum() / analytics.Count();
-        this.CalculatedHeadWidthVariance = headWidthVariance;
-        double headWidthMinValue = analytics.Min(x => x.HeadWidth);
-        this.CalculatedHeadWidthMinValue = headWidthMinValue;
-        double headWidthMaxValue = analytics.Max(x => x.HeadWidth);
-        this.CalculatedHeadWidthMaxValue = headWidthMaxValue;
+            // calculate head width
+            double headWidthAverage = analytics.Average(x => x.HeadWidth);
+            this.CalculatedHeadWidthAverage = headWidthAverage;
+            double headWidthSpan = analytics.Max(x => x.HeadWidth) - analytics.Min(x => x.HeadWidth);
+            this.CalculatedHeadWidthSpan = headWidthSpan;
+            double headWidthVariance = analytics.Select(x => Math.Pow(x.HeadWidth - headWidthAverage, 2)).Sum() / analytics.Count();
+            this.CalculatedHeadWidthVariance = headWidthVariance;
+            double headWidthMinValue = analytics.Min(x => x.HeadWidth);
+            this.CalculatedHeadWidthMinValue = headWidthMinValue;
+            double headWidthMaxValue = analytics.Max(x => x.HeadWidth);
+            this.CalculatedHeadWidthMaxValue = headWidthMaxValue;
 
-        // calculate distance
-        double distanceAverage = analytics.Average(x => x.Distance);
-        this.CalculatedDistanceAverage = distanceAverage;
-        double distanceSpan = analytics.Max(x => x.Distance) - analytics.Min(x => x.Distance);
-        this.CalculatedDistanceSpan = distanceSpan;
-        double distanceVariance = analytics.Select(x => Math.Pow(x.Distance - distanceAverage, 2)).Sum() / analytics.Count();
-        this.CalculatedDistanceVariance = distanceVariance;
-        double distanceMinValue = analytics.Min(x => x.Distance);
-        this.CalculatedDistanceMinValue = distanceMinValue;
-        double distanceMaxValue = analytics.Max(x => x.Distance);
-        this.CalculatedDistanceMaxValue = distanceMaxValue;
+            // calculate distance
+            double distanceAverage = analytics.Average(x => x.Distance);
+            this.CalculatedDistanceAverage = distanceAverage;
+            double distanceSpan = analytics.Max(x => x.Distance) - analytics.Min(x => x.Distance);
+            this.CalculatedDistanceSpan = distanceSpan;
+            double distanceVariance = analytics.Select(x => Math.Pow(x.Distance - distanceAverage, 2)).Sum() / analytics.Count();
+            this.CalculatedDistanceVariance = distanceVariance;
+            double distanceMinValue = analytics.Min(x => x.Distance);
+            this.CalculatedDistanceMinValue = distanceMinValue;
+            double distanceMaxValue = analytics.Max(x => x.Distance);
+            this.CalculatedDistanceMaxValue = distanceMaxValue;
+
+            // create chart values
+            this.CalculatedSeries.Clear();
+            int entriesPerChartPage = 2000;
+            ObservableCollection<ISeries> series = new();
+            series.Add(new LineSeries<double>
+            {
+                Values = analytics.Select(x => x.HeadWidth).Take(entriesPerChartPage).ToArray(),
+                Fill = null,
+                GeometrySize = 2,
+                Name = "Kopfbreite [mm]"
+            });
+            series.Add(new LineSeries<double>
+            {
+                Values = analytics.Select(x => x.Distance).Take(entriesPerChartPage).ToArray(),
+                Fill = null,
+                GeometrySize = 2,
+                Name = "Abstand [mm]"
+            });
+            this.CalculatedSeries = series;
+        });
 
         analytics.Clear();
     }

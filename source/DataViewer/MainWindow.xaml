@@ -10,6 +10,7 @@
                              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                              xmlns:fa5="http://schemas.fontawesome.com/icons/"
                              xmlns:converters="clr-namespace:DataViewer.Converter"
+                             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
                              xmlns:local="clr-namespace:DataViewer"
                              d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
                              mc:Ignorable="d"
@@ -359,6 +360,17 @@
                 </Border>
 
             </StackPanel>
+
+            <Border Margin="8"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    CornerRadius="4"
+                    Background="{StaticResource BackgroundContrastColorBrush}">
+                <lvc:CartesianChart Series="{Binding CalculatedSeries, Mode=OneWay}"
+                                    Margin="4">
+
+                </lvc:CartesianChart>
+            </Border>
 
         </Grid>
 
