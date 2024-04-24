@@ -63,6 +63,18 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     private double _calculatedHeadWidthVariance = 0;
 
     /// <summary>
+    /// min. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthMinValue = 0;
+
+    /// <summary>
+    /// max. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthMaxValue = 0;
+
+    /// <summary>
     /// Mittelwert
     /// </summary>
     [ObservableProperty]
@@ -79,6 +91,18 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     /// </summary>
     [ObservableProperty]
     private double _calculatedDistanceVariance = 0;
+
+    /// <summary>
+    /// min. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceMinValue = 0;
+
+    /// <summary>
+    /// max. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceMaxValue = 0;
 
     [ObservableProperty]
     private long _numberOfAnalyticsRows = 0;
@@ -233,6 +257,10 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         this.CalculatedHeadWidthSpan = headWidthSpan;
         double headWidthVariance = analytics.Select(x => Math.Pow(x.HeadWidth - headWidthAverage, 2)).Sum() / analytics.Count();
         this.CalculatedHeadWidthVariance = headWidthVariance;
+        double headWidthMinValue = analytics.Min(x => x.HeadWidth);
+        this.CalculatedHeadWidthMinValue = headWidthMinValue;
+        double headWidthMaxValue = analytics.Max(x => x.HeadWidth);
+        this.CalculatedHeadWidthMaxValue = headWidthMaxValue;
 
         // calculate distance
         double distanceAverage = analytics.Average(x => x.Distance);
@@ -241,6 +269,10 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         this.CalculatedDistanceSpan = distanceSpan;
         double distanceVariance = analytics.Select(x => Math.Pow(x.Distance - distanceAverage, 2)).Sum() / analytics.Count();
         this.CalculatedDistanceVariance = distanceVariance;
+        double distanceMinValue = analytics.Min(x => x.Distance);
+        this.CalculatedDistanceMinValue = distanceMinValue;
+        double distanceMaxValue = analytics.Max(x => x.Distance);
+        this.CalculatedDistanceMaxValue = distanceMaxValue;
 
         analytics.Clear();
     }
