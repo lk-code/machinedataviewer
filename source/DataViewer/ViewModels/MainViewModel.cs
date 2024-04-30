@@ -1,9 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataViewer.Core.Contracts;
+using DataViewer.Core.Models;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
 using Microsoft.Win32;
 
 namespace DataViewer.ViewModels;
@@ -31,13 +35,100 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     private bool _isFileLoaded = false;
 
     [ObservableProperty]
-    private int _selectedRibbonTabIndex = 0;
+    private int _selectedRibbonTabIndex = 1;
 
     [ObservableProperty]
     private bool _isRibbonTabAnalyticsEnabled = false;
 
     [ObservableProperty]
     private string _selectedFileHistoryEntry = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<string> _ports = new();
+
+    [ObservableProperty]
+    private ObservableCollection<string> _programs = new();
+
+    [ObservableProperty]
+    private ObservableCollection<AnalyticsRow> analytics = new();
+
+    [ObservableProperty]
+    private bool _isTableViewVisible = false;
+
+    /// <summary>
+    /// Mittelwert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthAverage = 0;
+
+    /// <summary>
+    /// Spannweite
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthSpan = 0;
+
+    /// <summary>
+    /// Standard-Abweichung
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthVariance = 0;
+
+    /// <summary>
+    /// min. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthMinValue = 0;
+
+    /// <summary>
+    /// max. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedHeadWidthMaxValue = 0;
+
+    /// <summary>
+    /// Mittelwert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceAverage = 0;
+
+    /// <summary>
+    /// Spannweite
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceSpan = 0;
+
+    /// <summary>
+    /// Standard-Abweichung
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceVariance = 0;
+
+    /// <summary>
+    /// min. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceMinValue = 0;
+
+    /// <summary>
+    /// max. wert
+    /// </summary>
+    [ObservableProperty]
+    private double _calculatedDistanceMaxValue = 0;
+
+    /// <summary>
+    /// Werte für Diagramm
+    /// </summary>
+    [ObservableProperty]
+    private ObservableCollection<ISeries> _histogramSeries = new();
+
+    [ObservableProperty]
+    private long _numberOfAnalyticsRows = 0;
+
+    [RelayCommand]
+    private void ExitApplication()
+    {
+        Application.Current.Shutdown();
+    }
 
     [RelayCommand]
     private async Task DragEnter(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
@@ -100,6 +191,11 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     [RelayCommand]
     private async Task LoadFile(string filePath, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return;
+        }
+
         this.LoadedFilePath = filePath;
 
         if (this.FileHistory.Contains(filePath))
@@ -120,7 +216,27 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
             this.IsBusy = true;
 
             string? data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
-            await this.DisplayAnalyticsFromDataAsync(data, cancellationToken);
+            // run DisplayAnalyticsFromDataAsync in non ui thread
+
+
+            _ = Task.Run(() => this.DisplayAnalyticsFromDataAsync(data, cancellationToken));
+
+
+
+
+            /*
+            Task task = Task.Run(() => {; });
+            Task nextTask = task.ContinueWith(x =>
+            {
+                _ = this.DisplayAnalyticsFromDataAsync(data, cancellationToken);
+
+                // clean up
+                data = null;
+            },
+            cancellationToken,
+            TaskContinuationOptions.RunContinuationsAsynchronously,
+            TaskScheduler.Default);
+            /* */
         }
         catch (System.IO.FileNotFoundException)
         {
@@ -134,10 +250,6 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         {
             AdonisUI.Controls.MessageBox.Show(ex.Message, "Fehler", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Error);
         }
-        finally
-        {
-            this.IsBusy = false;
-        }
     }
 
     private async Task DisplayAnalyticsFromDataAsync(string data, CancellationToken cancellationToken)
@@ -147,11 +259,119 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
             return;
         }
 
-        this.IsFileLoaded = true;
-        this.IsRibbonTabAnalyticsEnabled = true;
-        this.SelectedRibbonTabIndex = 1;
+        try
+        {
+            await Task.WhenAll(
+                this.LoadProgramsFromData(data, cancellationToken),
+                this.LoadPortsFromData(data, cancellationToken),
+                this.LoadAnalyticsFromData(data, cancellationToken)
+            );
 
-        IEnumerable<string> analytics = await dataExtractor.GetAnalyticsFromData(data, cancellationToken);
+            this.IsFileLoaded = true;
+            this.IsRibbonTabAnalyticsEnabled = true;
+            this.SelectedRibbonTabIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            AdonisUI.Controls.MessageBox.Show(ex.Message, "Fehler", AdonisUI.Controls.MessageBoxButton.OK, AdonisUI.Controls.MessageBoxImage.Error);
+        }
+        finally
+        {
+            this.IsBusy = false;
+        }
+    }
+
+    private async Task LoadProgramsFromData(string data, CancellationToken cancellationToken)
+    {
+        List<string> programs = (await dataExtractor.GetProgramsFromDataAsync(data, cancellationToken)).ToList();
+
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+            this.Programs.Clear();
+            programs.ToList()
+                .ForEach(x => this.Programs.Add(x));
+        });
+
+        programs.Clear();
+    }
+
+    private async Task LoadPortsFromData(string data, CancellationToken cancellationToken)
+    {
+        List<string> ports = (await dataExtractor.GetPortsFromDataAsync(data, cancellationToken)).ToList();
+
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+            this.Ports.Clear();
+            ports.ToList()
+                .ForEach(x => this.Ports.Add(x));
+        });
+
+        ports.Clear();
+    }
+
+    private async Task LoadAnalyticsFromData(string data, CancellationToken cancellationToken)
+    {
+        List<AnalyticsRow> analytics = (await dataExtractor.GetAnalyticsFromDataAsync(data, cancellationToken)).ToList();
+
+        ObservableCollection<AnalyticsRow> analyticsRows = new(analytics);
+        ObservableCollection<ISeries> histogramSeries = this.CalculateHistogramSeries(analytics);
+
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+            this.NumberOfAnalyticsRows = analytics.Count();
+
+            // calculate head width
+            double headWidthAverage = analytics.Average(x => x.HeadWidth);
+            this.CalculatedHeadWidthAverage = headWidthAverage;
+            double headWidthSpan = analytics.Max(x => x.HeadWidth) - analytics.Min(x => x.HeadWidth);
+            this.CalculatedHeadWidthSpan = headWidthSpan;
+            double headWidthVariance = analytics.Select(x => Math.Pow(x.HeadWidth - headWidthAverage, 2)).Sum() / analytics.Count();
+            this.CalculatedHeadWidthVariance = headWidthVariance;
+            double headWidthMinValue = analytics.Min(x => x.HeadWidth);
+            this.CalculatedHeadWidthMinValue = headWidthMinValue;
+            double headWidthMaxValue = analytics.Max(x => x.HeadWidth);
+            this.CalculatedHeadWidthMaxValue = headWidthMaxValue;
+
+            // calculate distance
+            double distanceAverage = analytics.Average(x => x.Distance);
+            this.CalculatedDistanceAverage = distanceAverage;
+            double distanceSpan = analytics.Max(x => x.Distance) - analytics.Min(x => x.Distance);
+            this.CalculatedDistanceSpan = distanceSpan;
+            double distanceVariance = analytics.Select(x => Math.Pow(x.Distance - distanceAverage, 2)).Sum() / analytics.Count();
+            this.CalculatedDistanceVariance = distanceVariance;
+            double distanceMinValue = analytics.Min(x => x.Distance);
+            this.CalculatedDistanceMinValue = distanceMinValue;
+            double distanceMaxValue = analytics.Max(x => x.Distance);
+            this.CalculatedDistanceMaxValue = distanceMaxValue;
+
+            this.Analytics = analyticsRows;
+            this.HistogramSeries = histogramSeries;
+
+            analytics.Clear();
+        });
+    }
+
+    private ObservableCollection<ISeries> CalculateHistogramSeries(List<AnalyticsRow> analytics)
+    {
+        // create chart values
+        int entriesPerChartPage = 2000;
+        ObservableCollection<ISeries> series = new();
+        series.Add(new LineSeries<double>
+        {
+            Values = analytics.Select(x => x.HeadWidth).Take(entriesPerChartPage).ToArray(),
+            Fill = null,
+            GeometrySize = 2,
+            Name = "Kopfbreite [mm]"
+        });
+        series.Add(new LineSeries<double>
+        {
+            Values = analytics.Select(x => x.Distance).Take(entriesPerChartPage).ToArray(),
+            Fill = null,
+            GeometrySize = 2,
+            Name = "Abstand [mm]"
+        });
+
+        return series;
     }
 
     [RelayCommand]
@@ -184,11 +404,31 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     private async Task CloseFileAndClearDisplay(CancellationToken cancellationToken)
     {
-        this.IsFileLoaded = false;
-        this.IsRibbonTabAnalyticsEnabled = false;
-        this.SelectedRibbonTabIndex = 0;
         this.LoadedFilePath = "";
+        this.IsFileLoaded = false;
+        this.SelectedRibbonTabIndex = 1;
+        this.IsRibbonTabAnalyticsEnabled = false;
+        this.Ports.Clear();
+        this.CalculatedHeadWidthAverage = 0;
+        this.CalculatedHeadWidthSpan = 0;
+        this.CalculatedHeadWidthVariance = 0;
+        this.CalculatedDistanceAverage = 0;
+        this.CalculatedDistanceSpan = 0;
+        this.CalculatedDistanceVariance = 0;
+        this.NumberOfAnalyticsRows = 0;
 
         await Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private void ShowResultView()
+    {
+        this.IsTableViewVisible = false;
+    }
+
+    [RelayCommand]
+    private void ShowTableView()
+    {
+        this.IsTableViewVisible = true;
     }
 }
