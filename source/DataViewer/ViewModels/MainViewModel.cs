@@ -1,8 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DataViewer.Core.Contracts;
@@ -36,7 +35,7 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     private bool _isFileLoaded = false;
 
     [ObservableProperty]
-    private int _selectedRibbonTabIndex = 0;
+    private int _selectedRibbonTabIndex = 1;
 
     [ObservableProperty]
     private bool _isRibbonTabAnalyticsEnabled = false;
@@ -46,6 +45,15 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
     [ObservableProperty]
     private ObservableCollection<string> _ports = new();
+
+    [ObservableProperty]
+    private ObservableCollection<string> _programs = new();
+
+    [ObservableProperty]
+    private ObservableCollection<AnalyticsRow> analytics = new();
+
+    [ObservableProperty]
+    private bool _isTableViewVisible = false;
 
     /// <summary>
     /// Mittelwert
@@ -111,10 +119,16 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     /// Werte für Diagramm
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<ISeries> _calculatedSeries = new();
+    private ObservableCollection<ISeries> _histogramSeries = new();
 
     [ObservableProperty]
     private long _numberOfAnalyticsRows = 0;
+
+    [RelayCommand]
+    private void ExitApplication()
+    {
+        Application.Current.Shutdown();
+    }
 
     [RelayCommand]
     private async Task DragEnter(System.Windows.DragEventArgs e, CancellationToken cancellationToken)
@@ -203,10 +217,26 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
 
             string? data = await iOProvider.GetFileContentAsync(loadedFilePath, Encoding.UTF7, cancellationToken);
             // run DisplayAnalyticsFromDataAsync in non ui thread
-            await Task.Run(() => this.DisplayAnalyticsFromDataAsync(data, cancellationToken), cancellationToken);
 
-            // clean up
-            data = null;
+
+            _ = Task.Run(() => this.DisplayAnalyticsFromDataAsync(data, cancellationToken));
+
+
+
+
+            /*
+            Task task = Task.Run(() => {; });
+            Task nextTask = task.ContinueWith(x =>
+            {
+                _ = this.DisplayAnalyticsFromDataAsync(data, cancellationToken);
+
+                // clean up
+                data = null;
+            },
+            cancellationToken,
+            TaskContinuationOptions.RunContinuationsAsynchronously,
+            TaskScheduler.Default);
+            /* */
         }
         catch (System.IO.FileNotFoundException)
         {
@@ -232,13 +262,14 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         try
         {
             await Task.WhenAll(
+                this.LoadProgramsFromData(data, cancellationToken),
                 this.LoadPortsFromData(data, cancellationToken),
                 this.LoadAnalyticsFromData(data, cancellationToken)
             );
 
             this.IsFileLoaded = true;
             this.IsRibbonTabAnalyticsEnabled = true;
-            this.SelectedRibbonTabIndex = 1;
+            this.SelectedRibbonTabIndex = 0;
         }
         catch (Exception ex)
         {
@@ -248,6 +279,20 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
         {
             this.IsBusy = false;
         }
+    }
+
+    private async Task LoadProgramsFromData(string data, CancellationToken cancellationToken)
+    {
+        List<string> programs = (await dataExtractor.GetProgramsFromDataAsync(data, cancellationToken)).ToList();
+
+        await App.Current.Dispatcher.InvokeAsync(() =>
+        {
+            this.Programs.Clear();
+            programs.ToList()
+                .ForEach(x => this.Programs.Add(x));
+        });
+
+        programs.Clear();
     }
 
     private async Task LoadPortsFromData(string data, CancellationToken cancellationToken)
@@ -267,6 +312,9 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     private async Task LoadAnalyticsFromData(string data, CancellationToken cancellationToken)
     {
         List<AnalyticsRow> analytics = (await dataExtractor.GetAnalyticsFromDataAsync(data, cancellationToken)).ToList();
+
+        ObservableCollection<AnalyticsRow> analyticsRows = new(analytics);
+        ObservableCollection<ISeries> histogramSeries = this.CalculateHistogramSeries(analytics);
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
@@ -296,28 +344,34 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
             double distanceMaxValue = analytics.Max(x => x.Distance);
             this.CalculatedDistanceMaxValue = distanceMaxValue;
 
-            // create chart values
-            this.CalculatedSeries.Clear();
-            int entriesPerChartPage = 2000;
-            ObservableCollection<ISeries> series = new();
-            series.Add(new LineSeries<double>
-            {
-                Values = analytics.Select(x => x.HeadWidth).Take(entriesPerChartPage).ToArray(),
-                Fill = null,
-                GeometrySize = 2,
-                Name = "Kopfbreite [mm]"
-            });
-            series.Add(new LineSeries<double>
-            {
-                Values = analytics.Select(x => x.Distance).Take(entriesPerChartPage).ToArray(),
-                Fill = null,
-                GeometrySize = 2,
-                Name = "Abstand [mm]"
-            });
-            this.CalculatedSeries = series;
+            this.Analytics = analyticsRows;
+            this.HistogramSeries = histogramSeries;
+
+            analytics.Clear();
+        });
+    }
+
+    private ObservableCollection<ISeries> CalculateHistogramSeries(List<AnalyticsRow> analytics)
+    {
+        // create chart values
+        int entriesPerChartPage = 2000;
+        ObservableCollection<ISeries> series = new();
+        series.Add(new LineSeries<double>
+        {
+            Values = analytics.Select(x => x.HeadWidth).Take(entriesPerChartPage).ToArray(),
+            Fill = null,
+            GeometrySize = 2,
+            Name = "Kopfbreite [mm]"
+        });
+        series.Add(new LineSeries<double>
+        {
+            Values = analytics.Select(x => x.Distance).Take(entriesPerChartPage).ToArray(),
+            Fill = null,
+            GeometrySize = 2,
+            Name = "Abstand [mm]"
         });
 
-        analytics.Clear();
+        return series;
     }
 
     [RelayCommand]
@@ -352,7 +406,7 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     {
         this.LoadedFilePath = "";
         this.IsFileLoaded = false;
-        this.SelectedRibbonTabIndex = 0;
+        this.SelectedRibbonTabIndex = 1;
         this.IsRibbonTabAnalyticsEnabled = false;
         this.Ports.Clear();
         this.CalculatedHeadWidthAverage = 0;
@@ -367,8 +421,14 @@ public partial class MainViewModel(ISettingsStorage settingsStorage,
     }
 
     [RelayCommand]
-    private void ExitApplication()
+    private void ShowResultView()
     {
-        Application.Current.Shutdown();
+        this.IsTableViewVisible = false;
+    }
+
+    [RelayCommand]
+    private void ShowTableView()
+    {
+        this.IsTableViewVisible = true;
     }
 }

@@ -14,6 +14,7 @@
                              xmlns:local="clr-namespace:DataViewer"
                              d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
                              mc:Ignorable="d"
+                             d:Height="600" d:Width="1000"
                              Title="{Binding Title, Mode=OneWay}"
                              MinHeight="600" MinWidth="1000"
                              Height="800" Width="1400"
@@ -46,6 +47,7 @@
         </Grid.RowDefinitions>
 
         <Grid Visibility="{Binding IsDragDropUIVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+              d:Visibility="Collapsed"
               Panel.ZIndex="999"
               Grid.Row="0"
               Grid.RowSpan="3">
@@ -59,7 +61,8 @@
         </Grid>
 
         <Ribbon Grid.Row="0"
-                SelectedIndex="{Binding SelectedRibbonTabIndex, Mode=TwoWay}">
+                SelectedIndex="{Binding SelectedRibbonTabIndex, Mode=TwoWay}"
+                d:SelectedIndex="0">
 
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Images/icons8-show-sidepanel-16.png" 
@@ -71,7 +74,7 @@
 
                     <RibbonSeparator />
 
-                    <RibbonApplicationMenuItem Header="App-Info"
+                    <RibbonApplicationMenuItem Header="Info"
                                                Command="{Binding AppInfoCommand}"
                                                KeyTip="I" />
 
@@ -105,20 +108,21 @@
 
             </Ribbon.ApplicationMenu>
 
-            <RibbonTab Header="Info">
-                <RibbonGroup Header="Über">
-                    <RibbonButton LargeImageSource="/Images/icons8-info-32.png"
-                                  Label="Info"
-                                  Command="{Binding AppInfoCommand, Mode=OneWay}"/>
-                </RibbonGroup>
-            </RibbonTab>
-
             <RibbonTab Header="Analyse"
                        IsEnabled="{Binding IsRibbonTabAnalyticsEnabled, Mode=OneWay}">
                 <RibbonGroup Header="Datei">
                     <RibbonButton LargeImageSource="/Images/icons8-close-32.png"
                                   Label="Schließen"
                                   Command="{Binding CloseFileCommand, Mode=OneWay}"/>
+                </RibbonGroup>
+                <RibbonGroup Header="Ansicht">
+                    <RibbonRadioButton LargeImageSource="/Images/icons8-graph-32.png"
+                                       IsChecked="True"
+                                       Label="Auswertungs-Ansicht"
+                                       Command="{Binding ShowResultViewCommand, Mode=OneWay}"/>
+                    <RibbonRadioButton SmallImageSource="/Images/icons8-day-view-16.png"
+                                       Label="Tabellen-Ansicht"
+                                       Command="{Binding ShowTableViewCommand, Mode=OneWay}"/>
                 </RibbonGroup>
                 <RibbonGroup Header="Berechnung">
                     <RibbonButton SmallImageSource="/Images/icons8-reset-16.png"
@@ -128,9 +132,18 @@
                 </RibbonGroup>
             </RibbonTab>
 
+            <RibbonTab Header="Info">
+                <RibbonGroup Header="Über">
+                    <RibbonButton LargeImageSource="/Images/icons8-info-32.png"
+                                  Label="Info"
+                                  Command="{Binding AppInfoCommand, Mode=OneWay}"/>
+                </RibbonGroup>
+            </RibbonTab>
+
         </Ribbon>
 
         <Grid Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+              d:Visibility="Collapsed"
               Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -168,6 +181,7 @@
 
                     <ContentControl ContentTemplate="{DynamicResource {x:Static adonisUi:Templates.LoadingCircle}}"
                                     Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    d:Visibility="Collapsed"
                                     Foreground="{StaticResource AccentColorBrush}"
                                     Height="100" Width="100"
                                     Focusable="False"/>
@@ -203,180 +217,268 @@
 
         </Grid>
 
-        <Grid Grid.Row="1" Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid Grid.Row="1"
+              Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="400" />
-            </Grid.ColumnDefinitions>
+            <DataGrid ItemsSource="{Binding Analytics, Mode=OneWay}"
+                      Visibility="{Binding IsTableViewVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                      AutoGenerateColumns="False"
+                      d:Visibility="Collapsed">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Datum"
+                                        Binding="{Binding DateTime, Mode=OneWay, StringFormat=d}" />
+                    <DataGridTextColumn Header="Profilnr."
+                                        Binding="{Binding ProfileNumber, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Kombiniert: Kopfbreite [mm]"
+                                        Binding="{Binding HeadWidth, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Programm 5: Abstand X [mm]"
+                                        Binding="{Binding Distance, Mode=OneWay}" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+            <Grid Visibility="{Binding IsTableViewVisible, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                  d:Visibility="Visible">
 
-            <Border Margin="8"
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="400" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Margin="8"
                     Grid.Row="0"
                     Grid.Column="0"
                     CornerRadius="4"
                     Background="{StaticResource BackgroundContrastColorBrush}">
 
-                <Grid Margin="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Text="Kopfbreite [mm]"
+                        <TextBlock Text="Kopfbreite [mm]"
                                Margin="0, 0, 0, 4"
                                Grid.Row="0"
                                Grid.Column="0" Grid.ColumnSpan="3"
                                FontSize="16"/>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="1"
                                 Grid.Column="0">
-                        <TextBlock Text="Mittelwert"
+                            <TextBlock Text="Mittelwert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthAverage, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedHeadWidthAverage, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="1"
                                 Grid.Column="1">
-                        <TextBlock Text="Spannweite"
+                            <TextBlock Text="Spannweite"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthSpan, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedHeadWidthSpan, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="1"
                                 Grid.Column="2">
-                        <TextBlock Text="Std.-Abweichung"
+                            <TextBlock Text="Std.-Abweichung"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthVariance, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedHeadWidthVariance, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="1"
                                 Grid.Column="3">
-                        <TextBlock Text="min. Wert"
+                            <TextBlock Text="min. Wert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthMinValue, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedHeadWidthMinValue, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="1"
                                 Grid.Column="4">
-                        <TextBlock Text="max. Wert"
+                            <TextBlock Text="max. Wert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedHeadWidthMaxValue, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedHeadWidthMaxValue, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <TextBlock Text="Abstand [mm]"
+                        <TextBlock Text="Abstand [mm]"
                                Margin="0, 16, 0, 4"
                                Grid.Row="2"
                                Grid.Column="0" Grid.ColumnSpan="3"
                                FontSize="16"/>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="3"
                                 Grid.Column="0">
-                        <TextBlock Text="Mittelwert"
+                            <TextBlock Text="Mittelwert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceAverage, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedDistanceAverage, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="3"
                                 Grid.Column="1">
-                        <TextBlock Text="Spannweite"
+                            <TextBlock Text="Spannweite"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceSpan, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedDistanceSpan, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="3"
                                 Grid.Column="2">
-                        <TextBlock Text="Std.-Abweichung"
+                            <TextBlock Text="Std.-Abweichung"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceVariance, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedDistanceVariance, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="3"
                                 Grid.Column="3">
-                        <TextBlock Text="min. Wert"
+                            <TextBlock Text="min. Wert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceMinValue, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedDistanceMinValue, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                    <StackPanel Orientation="Vertical"
+                        <StackPanel Orientation="Vertical"
                                 Grid.Row="3"
                                 Grid.Column="4">
-                        <TextBlock Text="max. Wert"
+                            <TextBlock Text="max. Wert"
                                    FontStyle="Italic" />
-                        <TextBlock Text="{Binding CalculatedDistanceMaxValue, Mode=OneWay, StringFormat=N3}" />
-                    </StackPanel>
+                            <TextBlock Text="{Binding CalculatedDistanceMaxValue, Mode=OneWay, StringFormat=N3}" />
+                        </StackPanel>
 
-                </Grid>
+                    </Grid>
 
-            </Border>
+                </Border>
 
-            <StackPanel Grid.Row="0"
+                <StackPanel Grid.Row="0"
                         Grid.RowSpan="2"
                         Grid.Column="1"
                         Orientation="Vertical">
 
-                <Border Margin="8"
-                        CornerRadius="4"
-                        Background="{StaticResource BackgroundContrastColorBrush}">
-                    <ListBox ItemsSource="{Binding Ports, Mode=OneWay}"
-                             IsEnabled="False"/>
-                </Border>
+                    <Border Margin="8"
+                            CornerRadius="4"
+                            Background="{StaticResource BackgroundContrastColorBrush}">
+                        <StackPanel Orientation="Vertical"
+                                    Margin="4">
+                            <TextBlock Text="Aktive Programme"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       Margin="0, 0, 0, 4"
+                                       FontSize="16"/>
+                            <ListBox ItemsSource="{Binding Programs, Mode=OneWay}"
+                                     MinHeight="40"
+                                     IsEnabled="False"/>
+                        </StackPanel>
+                    </Border>
 
-                <Border Margin="8"
-                        CornerRadius="4"
-                        Background="{StaticResource BackgroundContrastColorBrush}">
-                    <StackPanel Orientation="Vertical"
-                                Margin="4">
-                        <TextBlock Text="Anzahl geladene Einträge"
+                    <Border Margin="8"
+                            CornerRadius="4"
+                            Background="{StaticResource BackgroundContrastColorBrush}">
+                        <StackPanel Orientation="Vertical"
+                                    Margin="4">
+                            <TextBlock Text="Toleranzen für Digitalausgänge (Untere/Obere Grenze)"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                   Margin="0, 0, 0, 4"
+                                   FontSize="16"/>
+                            <ListBox ItemsSource="{Binding Ports, Mode=OneWay}"
+                                     MinHeight="40"
+                                     IsEnabled="False"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="8"
+                            CornerRadius="4"
+                            Background="{StaticResource BackgroundContrastColorBrush}">
+                        <StackPanel Orientation="Vertical"
+                                    Margin="4">
+                            <TextBlock Text="Anzahl geladene Einträge"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
+                                       Margin="0, 0, 0, 4"
+                                       FontSize="16"/>
+                            <TextBlock Text="{Binding NumberOfAnalyticsRows, Mode=OneWay, StringFormat={}{0:#,0}}" />
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+
+                <Grid Grid.Row="1"
+                  Grid.Column="0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Margin="8"
+                            Grid.Column="0"
+                            CornerRadius="4"
+                            Background="{StaticResource BackgroundContrastColorBrush}">
+                        <StackPanel Orientation="Vertical"
+                                    Margin="4"
+                                    Grid.Row="1"
+                                    Grid.Column="4">
+                            <TextBlock Text="Histogramm"
                                Margin="0, 0, 0, 4"
                                FontSize="16"/>
-                        <TextBlock Text="{Binding NumberOfAnalyticsRows, Mode=OneWay, StringFormat={}{0:#,0}}" />
-                    </StackPanel>
-                </Border>
-
-            </StackPanel>
-
-            <Border Margin="8"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    CornerRadius="4"
-                    Background="{StaticResource BackgroundContrastColorBrush}">
-                <lvc:CartesianChart Series="{Binding CalculatedSeries, Mode=OneWay}"
+                            <lvc:CartesianChart Series="{Binding HistogramSeries, Mode=OneWay}"
                                     Margin="4">
 
-                </lvc:CartesianChart>
-            </Border>
+                            </lvc:CartesianChart>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="8"
+                            Grid.Column="1"
+                            CornerRadius="4"
+                            Background="{StaticResource BackgroundContrastColorBrush}">
+                        <StackPanel Orientation="Vertical"
+                                    Margin="4"
+                                    Grid.Row="1"
+                                    Grid.Column="4">
+                            <TextBlock Text="-"
+                               Margin="0, 0, 0, 4"
+                               FontSize="16"/>
+                            <!-- <lvc:CartesianChart Series="{Binding CalculatedSeries, Mode=OneWay}"Margin="4"/> -->
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+
+            </Grid>
 
         </Grid>
 
         <StatusBar Grid.Row="2">
-            <StatusBarItem Content="Lade Datei..." Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-            <StatusBarItem Content="{Binding LoadedFilePath, Mode=OneWay}" />
+            <StatusBarItem Content="Lade Datei..."
+                           Visibility="{Binding IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <StatusBarItem Content="{Binding LoadedFilePath, Mode=OneWay}"
+                           Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <StatusBarItem Content="{Binding NumberOfAnalyticsRows, Mode=OneWay}"
+                           Visibility="{Binding IsFileLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                           ContentStringFormat=" {0} Zeilen"
+                           HorizontalAlignment="Right" />
         </StatusBar>
 
     </Grid>

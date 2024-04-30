@@ -21,6 +21,20 @@ public class MachineDataExtractor : IDataExtractor
     }
 
     /// <inheritdoc />
+    public async Task<IEnumerable<string>> GetProgramsFromDataAsync(string data, CancellationToken cancellationToken)
+    {
+        string programsBlock = await GetBlockFromDataAsync(data, 1, cancellationToken);
+
+        List<string> programs = new List<string>();
+        programsBlock.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                 .Skip(1)
+                 .ToList()
+                 .ForEach(x => programs.Add(x));
+
+        return programs;
+    }
+
+    /// <inheritdoc />
     public async Task<IEnumerable<AnalyticsRow>> GetAnalyticsFromDataAsync(string data, CancellationToken cancellationToken)
     {
         string analyticsBlock = await GetBlockFromDataAsync(data, 4, cancellationToken);

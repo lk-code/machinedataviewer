@@ -12,6 +12,10 @@
 
 	<ItemGroup>
 	  <None Remove="Images\icons8-close-32.png" />
+	  <None Remove="Images\icons8-day-view-16.png" />
+	  <None Remove="Images\icons8-day-view-32.png" />
+	  <None Remove="Images\icons8-graph-16.png" />
+	  <None Remove="Images\icons8-graph-32.png" />
 	  <None Remove="Images\icons8-info-32.png" />
 	  <None Remove="Images\icons8-menu-16.png" />
 	  <None Remove="Images\icons8-reset-16.png" />
@@ -22,6 +26,10 @@
 	<ItemGroup>
 	  <Content Include="icons8-web-analytics-256.ico" />
 	  <Resource Include="Images\icons8-close-32.png" />
+	  <Resource Include="Images\icons8-day-view-16.png" />
+	  <Resource Include="Images\icons8-day-view-32.png" />
+	  <Resource Include="Images\icons8-graph-16.png" />
+	  <Resource Include="Images\icons8-graph-32.png" />
 	  <Resource Include="Images\icons8-info-32.png" />
 	  <Resource Include="Images\icons8-menu-16.png" />
 	  <Resource Include="Images\icons8-reset-16.png" />

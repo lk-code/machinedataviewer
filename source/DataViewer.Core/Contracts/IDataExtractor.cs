@@ -9,6 +9,14 @@ public interface IDataExtractor
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    Task<IEnumerable<string>> GetProgramsFromDataAsync(string data, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<IEnumerable<string>> GetPortsFromDataAsync(string data, CancellationToken cancellationToken);
 
     /// <summary>

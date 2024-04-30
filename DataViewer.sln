@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{9D4BDD7B-61EF-452C-9CAB-D56D5DED2E7E}"
 	ProjectSection(SolutionItems) = preProject
 		assets\100050027_Versuch 8Sb-Sp.0,05_0,068.txt = assets\100050027_Versuch 8Sb-Sp.0,05_0,068.txt
+		assets\icons8-web-analytics-256.ico = assets\icons8-web-analytics-256.ico
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataViewer.Core", "source\DataViewer.Core\DataViewer.Core.csproj", "{B5E9DAD7-4731-4D70-BC45-DD19C9D36A3D}"
